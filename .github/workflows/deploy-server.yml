@@ -1,0 +1,20 @@
+name: Deploy Server to Azure App Service
+on:
+  push:
+    branches: [main]
+    paths: ['server/**']
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: cd server && npm ci && npm run build
+      - uses: azure/webapps-deploy@v3
+        with:
+          app-name: spark-api
+          publish-profile: ${{ secrets.AZURE_APP_SERVICE_PUBLISH_PROFILE }}
+          package: server
