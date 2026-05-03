@@ -2,6 +2,10 @@ node_modules
 dist
 dist-ssr
 .env
+.env.local
+.env.*.local
+server/.env
+client/.env
 *.log
 *.local
 .DS_Store

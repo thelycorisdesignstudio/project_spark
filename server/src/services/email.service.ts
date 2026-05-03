@@ -4,17 +4,19 @@ let transporter: nodemailer.Transporter | null = null;
 
 const getTransporter = (): nodemailer.Transporter => {
   if (!transporter) {
-    const connectionString = process.env.AZURE_COMMUNICATION_CONNECTION_STRING;
+    const smtpUser = process.env.SMTP_USER;
+    const smtpPass = process.env.SMTP_PASS;
+    const smtpHost = process.env.SMTP_HOST;
+    const smtpPort = parseInt(process.env.SMTP_PORT || '587', 10);
 
-    if (connectionString) {
-      // Azure Communication Services SMTP
+    if (smtpUser && smtpPass && smtpHost) {
       transporter = nodemailer.createTransport({
-        host: 'smtp.azurecomm.net',
-        port: 587,
-        secure: false,
+        host: smtpHost,
+        port: smtpPort,
+        secure: smtpPort === 465,
         auth: {
-          user: connectionString,
-          pass: connectionString,
+          user: smtpUser,
+          pass: smtpPass,
         },
       });
     } else {
@@ -22,6 +24,9 @@ const getTransporter = (): nodemailer.Transporter => {
       transporter = nodemailer.createTransport({
         jsonTransport: true,
       });
+      if (process.env.NODE_ENV === 'production') {
+        console.warn('WARNING: SMTP credentials not configured. Email delivery is disabled.');
+      }
     }
   }
   return transporter;
